@@ -27,10 +27,7 @@ jobs:
           python -m pip install --upgrade . botocore boto3 awscli
           ls ${{ github.workspace }}
           echo "Environment value: ${{ env.AWS_REGION }}"
-      - name: Test AWS Authentication
-        run: |
-          aws sts get-caller-identity
-  
+
       - name: Configure AWS Credentials
         id: aws_creds
         uses: aws-actions/configure-aws-credentials@v1
@@ -39,6 +36,15 @@ jobs:
           role-session-name: GitHub_to_AWS_via_FederatedOIDC
           aws-region: ${{ env.AWS_REGION }}
 
+      - name: Debug AWS Credentials
+        run: |
+          echo "AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID"
+          echo "AWS_SECRET_ACCESS_KEY: $AWS_SECRET_ACCESS_KEY"
+          echo "AWS_SESSION_TOKEN: $AWS_SESSION_TOKEN"
+
+      - name: Test AWS Authentication
+        run: aws sts get-caller-identity
+        
       - name: Build SageMaker Pipeline
         run: |
           export SAGEMAKER_PROJECT_ID=$(aws sagemaker describe-project \
