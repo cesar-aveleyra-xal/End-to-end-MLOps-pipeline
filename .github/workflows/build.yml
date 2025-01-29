@@ -3,6 +3,9 @@ on:
   push:
     branches: [ test ]
     paths: [pipelines/**]
+  pull_request:
+    branches: ["main"]
+    paths: [pipelines/**]
 
 env:
   AWS_REGION: us-east-1
