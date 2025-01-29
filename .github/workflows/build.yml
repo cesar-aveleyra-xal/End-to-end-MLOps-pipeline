@@ -30,10 +30,10 @@ jobs:
 
       - name: Configure AWS Credentials
         id: aws_creds
-        uses: aws-actions/configure-aws-credentials@v1
+        uses: aws-actions/configure-aws-credentials@v1.7.0
         with:
-          aws-access-key-id: # Change to reflect your IAM role’s ARN
-          aws-secret-access-key: 
+          role-to-assume: arn:aws:iam::739275483428:role/GitHubAction-AssumeRoleWithAction  # Change to reflect your IAM role’s ARN
+          role-session-name: GitHub_to_AWS_via_FederatedOIDC
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Build SageMaker Pipeline
