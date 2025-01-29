@@ -56,7 +56,7 @@ jobs:
             --query ProjectArn \
             --output text)
           export ARTIFACT_BUCKET=sagemaker-${{ env.SAGEMAKER_PROJECT_NAME }}-${{ env.AWS_REGION }}
-          export SAGEMAKER_PROJECT_NAME_ID="${{ env.SAGEMAKER_PROJECT_NAME }}-$SAGEMAKER_PROJECT_ID"
+          export SAGEMAKER_PROJECT_NAME_ID="${{ env.SAGEMAKER_PROJECT_NAME }}"
           export SAGEMAKER_PIPELINE_ROLE_ARN=arn:aws:iam::${{ steps.aws_creds.outputs.aws-account-id }}:role/service-role/AmazonSageMakerServiceCatalogProductsUseRole
           run-pipeline --module-name pipelines.abalone.pipeline \
             --role-arn ${SAGEMAKER_PIPELINE_ROLE_ARN} \
