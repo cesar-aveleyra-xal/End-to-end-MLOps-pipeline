@@ -2,6 +2,7 @@ name: BuildSageMakerModel
 on:
   push:
     branches: [ test ]
+    paths: [pipelines/**]
   pull_request:
     branches: ["main"]
     paths: [pipelines/**]
@@ -27,7 +28,7 @@ jobs:
           python -m pip install --upgrade . botocore boto3 awscli
           ls ${{ github.workspace }}
           echo "Environment value: ${{vars.ENV}}"
-
+          
       - name: Configure AWS Credentials
         id: aws_creds
         uses: aws-actions/configure-aws-credentials@v1
