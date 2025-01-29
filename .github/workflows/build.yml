@@ -44,7 +44,6 @@ jobs:
       - name: Sts GetCallerIdentity
         run: |
           aws sts get-caller-identity
-          aws iam get-role --role-name AmazonSageMakerServiceCatalogProductsUseRole
 
       - name: Build SageMaker Pipeline
         run: |
@@ -58,7 +57,7 @@ jobs:
             --output text)
           export ARTIFACT_BUCKET=sagemaker-${{ env.SAGEMAKER_PROJECT_NAME }}-${{ env.AWS_REGION }}
           export SAGEMAKER_PROJECT_NAME_ID="${{ env.SAGEMAKER_PROJECT_NAME }}"
-          export SAGEMAKER_PIPELINE_ROLE_ARN=arn:aws:iam::${{ steps.aws_creds.outputs.aws-account-id }}:role/service-role/AmazonSageMakerServiceCatalogProductsUseRole
+          export SAGEMAKER_PIPELINE_ROLE_ARN=arn:aws:iam::${{ steps.aws_creds.outputs.aws-account-id }}:role/AmazonSageMakerServiceCatalogProductsUseRole
           run-pipeline --module-name pipelines.abalone.pipeline \
             --role-arn ${SAGEMAKER_PIPELINE_ROLE_ARN} \
             --tags "[{\"Key\":\"sagemaker:project-name\", \"Value\":\"${SAGEMAKER_PROJECT_NAME}\"}, {\"Key\":\"sagemaker:project-id\", \"Value\":\"${SAGEMAKER_PROJECT_ID}\"}]" \
