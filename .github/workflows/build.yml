@@ -8,7 +8,7 @@ on:
 
 env:
   AWS_REGION: us-east-1
-  SAGEMAKER_PROJECT_NAME: sagemaker-mars-route-optimization
+  SAGEMAKER_PROJECT_NAME: mars-route-opt
 
 permissions:
   id-token: write   # This is required for requesting the JWT
