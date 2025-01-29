@@ -1,7 +1,7 @@
 name: BuildSageMakerModel
 on:
   push:
-    branches: [ main ]
+    branches: [ test ]
     paths: [pipelines/**]
 
 env:
