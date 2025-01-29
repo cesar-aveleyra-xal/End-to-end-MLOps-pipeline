@@ -44,6 +44,7 @@ jobs:
       - name: Sts GetCallerIdentity
         run: |
           aws sts get-caller-identity
+          aws iam get-role --role-name AmazonSageMakerServiceCatalogProductsUseRole
 
       - name: Build SageMaker Pipeline
         run: |
