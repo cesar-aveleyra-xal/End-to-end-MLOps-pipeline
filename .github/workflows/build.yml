@@ -10,9 +10,14 @@ env:
   AWS_REGION: us-east-1
   SAGEMAKER_PROJECT_NAME: sagemaker-github
 
+permissions:
+  id-token: write   # This is required for requesting the JWT
+  contents: read    # This is required for actions/checkout
+
 jobs:
   Build:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Check out repository code
         uses: actions/checkout@v3
@@ -35,6 +40,10 @@ jobs:
           role-to-assume: arn:aws:iam::739275483428:role/GitHubAction-AssumeRoleWithAction  # Change to reflect your IAM role’s ARN
           role-session-name: GitHub_to_AWS_via_FederatedOIDC
           aws-region: ${{ env.AWS_REGION }}
+
+      - name: Sts GetCallerIdentity
+        run: |
+          aws sts get-caller-identity
 
       - name: Build SageMaker Pipeline
         run: |
