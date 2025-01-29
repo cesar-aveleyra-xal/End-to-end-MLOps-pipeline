@@ -7,7 +7,7 @@ on:
     paths: [pipelines/**]
 
 env:
-  AWS_REGION: us-east-1
+  AWS_REGION: us-east-2
   SAGEMAKER_PROJECT_NAME: mars-route-opt
 
 permissions:
