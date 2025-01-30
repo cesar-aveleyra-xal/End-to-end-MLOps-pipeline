@@ -15,7 +15,7 @@ permissions:
   contents: read    # This is required for actions/checkout
 
 jobs:
-  environment_definition:
+  environment-definition:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -34,7 +34,7 @@ jobs:
           echo "Environment value: ${{ secrets.AWS_ACCESS_KEY_ID }}"
 
   unit-test-python-sagemaker-pipeline:
-    needs: [environment_definition]
+    needs: [environment-definition]
     runs-on: ubuntu-latest
     timeout-minutes: 5
     strategy:
@@ -52,7 +52,7 @@ jobs:
         working-directory: sagemaker/insp-and-quality-ctrl-procs
         run: tox
   
-  Ejecucion pipeline:
+  Ejecucion-pipeline:
     needs: [unit-test-python-sagemaker-pipeline]
     runs-on: ubuntu-latest
     timeout-minutes: 5
