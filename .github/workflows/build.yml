@@ -70,6 +70,7 @@ jobs:
       - name: Sts GetCallerIdentity
         run: |
           aws sts get-caller-identity
+          aws sagemaker list-projects --region us-east-2
 
       - name: Build SageMaker Pipeline
         run: |
