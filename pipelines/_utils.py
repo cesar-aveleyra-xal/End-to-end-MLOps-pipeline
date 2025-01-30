@@ -1,3 +1,4 @@
+
 # Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License"). You
@@ -17,7 +18,7 @@ import ast
 
 
 def get_pipeline_driver(module_name, passed_args=None):
-    """Gets the driver for generating your pipeline definition.
+    """Get the driver for generating your pipeline definition.
 
     Pipeline modules must define a get_pipeline() module-level method.
 
@@ -37,7 +38,7 @@ def convert_struct(str_struct=None):
     return ast.literal_eval(str_struct) if str_struct else {}
 
 def get_pipeline_custom_tags(module_name, args, tags):
-    """Gets the custom tags for pipeline
+    """Get the custom tags for pipeline
 
     Returns:
         Custom tags to be added to the pipeline
