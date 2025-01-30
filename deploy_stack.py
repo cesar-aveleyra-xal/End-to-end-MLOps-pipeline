@@ -50,12 +50,7 @@ if __name__ == "__main__":
     sm_client = boto3.client("sagemaker", region_name=args.region)
     project_info = sm_client.describe_project(ProjectName=args.project_name)
     stack_name = (
-        "sagemaker-"
-        + args.stack_name
-        + "-"
-        + args.project_name
-        + "-"
-        + project_info["ProjectId"]
+        "sagemaker-" + args.stack_name + "-" + args.project_name + "-" + project_info["ProjectId"]
     )
 
     # Read parameters and tags

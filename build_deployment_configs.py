@@ -30,11 +30,7 @@ def get_approved_package(model_package_group_name, sm_client):
 
         # Fetch more packages if none returned with continuation token
         while len(approved_packages) == 0 and "NextToken" in response:
-            logger.debug(
-                "Getting more packages for token: {}".format(
-                    response["NextToken"]
-                )
-            )
+            logger.debug("Getting more packages for token: {}".format(response["NextToken"]))
             response = sm_client.list_model_packages(
                 ModelPackageGroupName=model_package_group_name,
                 ModelApprovalStatus="Approved",
@@ -52,9 +48,7 @@ def get_approved_package(model_package_group_name, sm_client):
 
         # Return the pmodel package arn
         model_package_arn = approved_packages[0]["ModelPackageArn"]
-        logger.debug(
-            f"Identified the latest approved model package: {model_package_arn}"
-        )
+        logger.debug(f"Identified the latest approved model package: {model_package_arn}")
         return model_package_arn
     except ClientError as e:
         error_message = e.response["Error"]["Message"]
@@ -75,10 +69,7 @@ def extend_config(
     Extend the stage configuration with additional parameters and tags based.
     """
     # Verify that config has parameters and tags sections
-    if (
-        not "Parameters" in stage_config
-        or not "StageName" in stage_config["Parameters"]
-    ):
+    if not "Parameters" in stage_config or not "StageName" in stage_config["Parameters"]:
         raise Exception("Configuration file must include SageName parameter")
     if not "Tags" in stage_config:
         stage_config["Tags"] = {}
@@ -149,12 +140,8 @@ if __name__ == "__main__":
         required=False,
         help="default to ProjectName-ProjectId",
     )
-    parser.add_argument(
-        "--import-staging-config", type=str, default="staging-config.json"
-    )
-    parser.add_argument(
-        "--import-prod-config", type=str, default="prod-config.json"
-    )
+    parser.add_argument("--import-staging-config", type=str, default="staging-config.json")
+    parser.add_argument("--import-prod-config", type=str, default="prod-config.json")
     parser.add_argument(
         "--export-staging-config",
         type=str,
@@ -165,18 +152,10 @@ if __name__ == "__main__":
         type=str,
         default="staging-params-export.json",
     )
-    parser.add_argument(
-        "--export-staging-tags", type=str, default="staging-tags-export.json"
-    )
-    parser.add_argument(
-        "--export-prod-config", type=str, default="prod-config-export.json"
-    )
-    parser.add_argument(
-        "--export-prod-params", type=str, default="prod-params-export.json"
-    )
-    parser.add_argument(
-        "--export-prod-tags", type=str, default="prod-tags-export.json"
-    )
+    parser.add_argument("--export-staging-tags", type=str, default="staging-tags-export.json")
+    parser.add_argument("--export-prod-config", type=str, default="prod-config-export.json")
+    parser.add_argument("--export-prod-params", type=str, default="prod-params-export.json")
+    parser.add_argument("--export-prod-tags", type=str, default="prod-tags-export.json")
     parser.add_argument("--export-cfn-params-tags", type=bool, default=False)
     args, _ = parser.parse_known_args()
 
@@ -188,9 +167,7 @@ if __name__ == "__main__":
     sm_client = boto3.client("sagemaker", region_name=args.region)
 
     # Get SageMaker project info
-    project_info = sm_client.describe_project(
-        ProjectName=args.sagemaker_project_name
-    )
+    project_info = sm_client.describe_project(ProjectName=args.sagemaker_project_name)
     project_id = project_info["ProjectId"]
     project_arn = project_info["ProjectArn"]
 
@@ -198,19 +175,13 @@ if __name__ == "__main__":
     if args.model_package_group_name:
         model_package_group_name = args.model_package_group_name
     else:
-        model_package_group_name = (
-            f"{args.sagemaker_project_name}-{project_id}"
-        )
+        model_package_group_name = f"{args.sagemaker_project_name}-{project_id}"
 
     # Get the latest approved package
-    model_package_arn = get_approved_package(
-        model_package_group_name, sm_client
-    )
+    model_package_arn = get_approved_package(model_package_group_name, sm_client)
 
     # Get Model Execution Role
-    sm_domain = sm_client.describe_domain(
-        DomainId=project_info["CreatedBy"]["DomainId"]
-    )
+    sm_domain = sm_client.describe_domain(DomainId=project_info["CreatedBy"]["DomainId"])
     execution_role_arn = sm_domain["DefaultUserSettings"]["ExecutionRole"]
 
     # Write the staging config
@@ -224,9 +195,7 @@ if __name__ == "__main__":
             project_arn=project_arn,
             model_execution_role=execution_role_arn,
         )
-    logger.debug(
-        "Staging config: {}".format(json.dumps(staging_config, indent=4))
-    )
+    logger.debug("Staging config: {}".format(json.dumps(staging_config, indent=4)))
     with open(args.export_staging_config, "w") as f:
         json.dump(staging_config, f, indent=4)
     if args.export_cfn_params_tags:
@@ -251,6 +220,4 @@ if __name__ == "__main__":
     with open(args.export_prod_config, "w") as f:
         json.dump(prod_config, f, indent=4)
     if args.export_cfn_params_tags:
-        create_cfn_params_tags_file(
-            prod_config, args.export_prod_params, args.export_prod_tags
-        )
+        create_cfn_params_tags_file(prod_config, args.export_prod_params, args.export_prod_tags)

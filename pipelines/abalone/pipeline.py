@@ -1,13 +1,3 @@
-"""Example workflow pipeline script for abalone pipeline.
-
-                                               . -ModelStep
-                                              .
-    Process-> Train -> Evaluate -> Condition .
-                                              .
-                                               . -(stop)
-
-Implements a get_pipeline(**kwargs) method.
-"""
 import os
 
 import boto3
@@ -50,32 +40,38 @@ from sagemaker.workflow.pipeline_context import PipelineSession
 
 BASE_DIR = os.path.dirname(os.path.realpath(__file__))
 
+
 def get_sagemaker_client(region):
-     """Gets the sagemaker client.
-
-        Args:
-            region: the aws region to start the session
-            default_bucket: the bucket to use for storing the artifacts
-
-        Returns:
-            `sagemaker.session.Session instance
-        """
-     boto_session = boto3.Session(region_name=region)
-     sagemaker_client = boto_session.client("sagemaker")
-     return sagemaker_client
-
-
-def get_session(region, default_bucket):
-    """Gets the sagemaker session based on the region.
+    """
+    Get the sagemaker client.
 
     Args:
         region: the aws region to start the session
         default_bucket: the bucket to use for storing the artifacts
 
-    Returns:
-        `sagemaker.session.Session instance
-    """
+    Returns
+    -------
+        sagemaker.session.Session instance
 
+    """
+    boto_session = boto3.Session(region_name=region)
+    sagemaker_client = boto_session.client("sagemaker")
+    return sagemaker_client
+
+
+def get_session(region, default_bucket):
+    """
+    Get the sagemaker session based on the region.
+
+    Args:
+        region: the aws region to start the session
+        default_bucket: the bucket to use for storing the artifacts
+
+    Returns
+    -------
+        sagemaker.session.Session instance
+
+    """
     boto_session = boto3.Session(region_name=region)
 
     sagemaker_client = boto_session.client("sagemaker")
@@ -87,17 +83,20 @@ def get_session(region, default_bucket):
         default_bucket=default_bucket,
     )
 
+
 def get_pipeline_session(region, default_bucket):
-    """Gets the pipeline session based on the region.
+    """
+    Get the pipeline session based on the region.
 
     Args:
         region: the aws region to start the session
         default_bucket: the bucket to use for storing the artifacts
 
-    Returns:
+    Returns
+    -------
         PipelineSession instance
-    """
 
+    """
     boto_session = boto3.Session(region_name=region)
     sagemaker_client = boto_session.client("sagemaker")
 
@@ -107,11 +106,23 @@ def get_pipeline_session(region, default_bucket):
         default_bucket=default_bucket,
     )
 
+
 def get_pipeline_custom_tags(new_tags, region, sagemaker_project_arn=None):
+    """
+    Get the pipeline custom tags.
+
+    Args:
+        region: the aws region to start the session
+        default_bucket: the bucket to use for storing the artifacts
+
+    Returns
+    -------
+        tags
+
+    """
     try:
         sm_client = get_sagemaker_client(region)
-        response = sm_client.list_tags(
-            ResourceArn=sagemaker_project_arn)
+        response = sm_client.list_tags(ResourceArn=sagemaker_project_arn)
         project_tags = response["Tags"]
         for project_tag in project_tags:
             new_tags.append(project_tag)
@@ -131,15 +142,18 @@ def get_pipeline(
     processing_instance_type="ml.m5.xlarge",
     training_instance_type="ml.m5.xlarge",
 ):
-    """Gets a SageMaker ML Pipeline instance working with on abalone data.
+    """
+    Get a SageMaker ML Pipeline instance working with on abalone data.
 
     Args:
         region: AWS region to create and run the pipeline.
         role: IAM role to create and run steps and pipeline.
         default_bucket: the bucket to use for storing the artifacts
 
-    Returns:
+    Returns
+    -------
         an instance of a pipeline
+
     """
     sagemaker_session = get_session(region, default_bucket)
     if role is None:
@@ -274,7 +288,7 @@ def get_pipeline(
             s3_uri="{}/evaluation.json".format(
                 step_eval.arguments["ProcessingOutputConfig"]["Outputs"][0]["S3Output"]["S3Uri"]
             ),
-            content_type="application/json"
+            content_type="application/json",
         )
     )
     model = Model(
@@ -302,7 +316,7 @@ def get_pipeline(
         left=JsonGet(
             step_name=step_eval.name,
             property_file=evaluation_report,
-            json_path="regression_metrics.mse.value"
+            json_path="regression_metrics.mse.value",
         ),
         right=6.0,
     )

@@ -1,0 +1,11 @@
+# Archivos de cobertura
+.coverage
+
+# Archivos y carpetas de Tox
+.tox/
+
+# Archivos generados por setuptools (pip install -e .)
+pipelines.egg-info/
+
+# Caché de pruebas de pytest
+tests/__pycache__/

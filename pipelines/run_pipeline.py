@@ -22,12 +22,13 @@ from pipelines._utils import get_pipeline_driver, convert_struct, get_pipeline_c
 
 
 def main():  # pragma: no cover
-    """The main harness that creates or updates and runs the pipeline.
+    """
+    Create or updates and runs the pipeline.
 
-    Creates or updates the pipeline and runs it.
+    Create or update the pipeline and runs it.
     """
     parser = argparse.ArgumentParser(
-        "Creates or updates and runs the pipeline for the pipeline script."
+        "Create or update and runs the pipeline for the pipeline script."
     )
 
     parser.add_argument(
@@ -35,7 +36,7 @@ def main():  # pragma: no cover
         "--module-name",
         dest="module_name",
         type=str,
-        help="The module name of the pipeline to import.",
+        help="Module name of the pipeline to import.",
     )
     parser.add_argument(
         "-kwargs",
@@ -92,11 +93,11 @@ def main():  # pragma: no cover
 
         print("Waiting for the execution to finish...")
 
-        # Setting the attempts and delay (in seconds) will modify the overall time the pipeline waits. 
+        # Setting the attempts and delay (in seconds) will modify the overall time the pipeline waits.
         # If the execution is taking a longer time, update these parameters to a larger value.
         # Eg: The total wait time is calculated as 60 * 120 = 7200 seconds (2 hours)
         execution.wait(max_attempts=120, delay=60)
-        
+
         print("\n#####Execution completed. Execution step details:")
 
         print(execution.list_steps())

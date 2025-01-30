@@ -1,4 +1,3 @@
-
 # Copyright 2020 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License"). You
@@ -18,7 +17,8 @@ import ast
 
 
 def get_pipeline_driver(module_name, passed_args=None):
-    """Get the driver for generating your pipeline definition.
+    """
+    Get the driver for generating your pipeline definition.
 
     Pipeline modules must define a get_pipeline() module-level method.
 
@@ -26,8 +26,10 @@ def get_pipeline_driver(module_name, passed_args=None):
         module_name: The module name of your pipeline.
         passed_args: Optional passed arguments that your pipeline may be templated by.
 
-    Returns:
+    Returns
+    -------
         The SageMaker Workflow pipeline.
+
     """
     _imports = __import__(module_name, fromlist=["get_pipeline"])
     kwargs = convert_struct(passed_args)
@@ -35,18 +37,25 @@ def get_pipeline_driver(module_name, passed_args=None):
 
 
 def convert_struct(str_struct=None):
+    """Convert structure."""
     return ast.literal_eval(str_struct) if str_struct else {}
 
-def get_pipeline_custom_tags(module_name, args, tags):
-    """Get the custom tags for pipeline
 
-    Returns:
-        Custom tags to be added to the pipeline
+def get_pipeline_custom_tags(module_name, args, tags):
+    """
+    Get the custom tags for pipeline.
+
+    Returns
+    -------
+        Custom tags to be added to the pipeline.
+
     """
     try:
         _imports = __import__(module_name, fromlist=["get_pipeline_custom_tags"])
         kwargs = convert_struct(args)
-        return _imports.get_pipeline_custom_tags(tags, kwargs['region'], kwargs['sagemaker_project_arn'])
+        return _imports.get_pipeline_custom_tags(
+            tags, kwargs["region"], kwargs["sagemaker_project_arn"]
+        )
     except Exception as e:
         print(f"Error getting project tags: {e}")
     return tags

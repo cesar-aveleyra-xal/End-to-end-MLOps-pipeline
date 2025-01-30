@@ -21,7 +21,8 @@ from pipelines._utils import get_pipeline_driver
 
 
 def main():  # pragma: no cover
-    """The main harness that gets the pipeline definition JSON.
+    """
+    Get the pipeline definition JSON.
 
     Prints the json to stdout or saves to file.
     """
@@ -32,7 +33,7 @@ def main():  # pragma: no cover
         "--module-name",
         dest="module_name",
         type=str,
-        help="The module name of the pipeline to import.",
+        help="Module name of the pipeline to import.",
     )
     parser.add_argument(
         "-f",
@@ -40,7 +41,7 @@ def main():  # pragma: no cover
         dest="file_name",
         type=str,
         default=None,
-        help="The file to output the pipeline definition json to.",
+        help="File to output the pipeline definition json to.",
     )
     parser.add_argument(
         "-kwargs",

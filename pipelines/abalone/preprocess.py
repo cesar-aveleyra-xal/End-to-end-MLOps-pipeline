@@ -1,4 +1,3 @@
-"""Feature engineers the abalone dataset."""
 import argparse
 import logging
 import os
@@ -47,7 +46,7 @@ label_column_dtype = {"rings": np.float64}
 
 
 def merge_two_dicts(x, y):
-    """Merges two dicts, returning a new copy."""
+    """Merge two dicts, returning a new copy."""
     z = x.copy()
     z.update(y)
     return z
@@ -119,17 +118,11 @@ if __name__ == "__main__":
         len(X),
     )
     np.random.shuffle(X)
-    train, validation, test = np.split(
-        X, [int(0.7 * len(X)), int(0.85 * len(X))]
-    )
+    train, validation, test = np.split(X, [int(0.7 * len(X)), int(0.85 * len(X))])
 
     logger.info("Writing out datasets to %s.", base_dir)
-    pd.DataFrame(train).to_csv(
-        f"{base_dir}/train/train.csv", header=False, index=False
-    )
+    pd.DataFrame(train).to_csv(f"{base_dir}/train/train.csv", header=False, index=False)
     pd.DataFrame(validation).to_csv(
         f"{base_dir}/validation/validation.csv", header=False, index=False
     )
-    pd.DataFrame(test).to_csv(
-        f"{base_dir}/test/test.csv", header=False, index=False
-    )
+    pd.DataFrame(test).to_csv(f"{base_dir}/test/test.csv", header=False, index=False)
