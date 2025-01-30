@@ -49,7 +49,7 @@ jobs:
       - name: INSTALL PACKAGES
         run: pip3 install tox
       - name: RUN TOX
-        working-directory: sagemaker/insp-and-quality-ctrl-procs
+        working-directory: pipelines
         run: tox
   
   Ejecucion-pipeline:
