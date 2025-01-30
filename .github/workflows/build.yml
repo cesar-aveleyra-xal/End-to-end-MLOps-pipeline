@@ -15,7 +15,7 @@ permissions:
   contents: read    # This is required for actions/checkout
 
 jobs:
-  Build:
+  environment_definition:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
@@ -33,6 +33,32 @@ jobs:
           ls ${{ github.workspace }}
           echo "Environment value: ${{ secrets.AWS_ACCESS_KEY_ID }}"
 
+  unit-test-python-sagemaker-pipeline:
+    needs: [environment_definition]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    strategy:
+      matrix:
+        python: ["3.9"]
+    steps:
+      - uses: actions/checkout@v3
+      - name: SETUP PYTHON
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python }}
+      - name: INSTALL PACKAGES
+        run: pip3 install tox
+      - name: RUN TOX
+        working-directory: sagemaker/insp-and-quality-ctrl-procs
+        run: tox
+  
+  Ejecucion pipeline:
+    needs: [unit-test-python-sagemaker-pipeline]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v3
       - name: Configure AWS Credentials
         id: aws_creds
         uses: aws-actions/configure-aws-credentials@v1.7.0
