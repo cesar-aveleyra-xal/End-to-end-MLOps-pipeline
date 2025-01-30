@@ -47,7 +47,7 @@ jobs:
         with:
           python-version: ${{ matrix.python }}
       - name: INSTALL PACKAGES
-        run: pip3 install tox
+        run: pip3 install tox pylint
       - name: RUN TOX
         working-directory: pipelines
         run: tox
