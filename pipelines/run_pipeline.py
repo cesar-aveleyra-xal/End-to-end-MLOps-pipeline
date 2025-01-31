@@ -67,7 +67,18 @@ def main():  # pragma: no cover
         default=None,
         help="""List of dict strings of '[{"Key": "string", "Value": "string"}, ..]'""",
     )
+    parser.add_argument(
+        "-execute-pipeline",
+        "--execute-pipeline",
+        dest="execute_pipeline",
+        type=str,
+        required=True,
+        help="""List of dict strings of '[{"Key": "string", "Value": "string"}, ..]'""",
+    )   
     args = parser.parse_args()
+
+    execute_pipeline = args.execute_pipeline.lower() == 'true'
+    print(f"Valor para ejecutar el pipeline de sagemaker: {execute_pipeline}")
 
     if args.module_name is None or args.role_arn is None:
         parser.print_help()
@@ -80,27 +91,28 @@ def main():  # pragma: no cover
         parsed = json.loads(pipeline.definition())
         print(json.dumps(parsed, indent=2, sort_keys=True))
 
-        all_tags = get_pipeline_custom_tags(args.module_name, args.kwargs, tags)
+        # all_tags = get_pipeline_custom_tags(args.module_name, args.kwargs, tags)
 
         upsert_response = pipeline.upsert(
-            role_arn=args.role_arn, description=args.description, tags=all_tags
+            role_arn=args.role_arn, description=args.description
         )
         print("\n###### Created/Updated SageMaker Pipeline: Response received:")
         print(upsert_response)
 
-        execution = pipeline.start()
-        print(f"\n###### Execution started with PipelineExecutionArn: {execution.arn}")
+        if execute_pipeline:
+            print(f"El valor para ejecutar el pipeline es TRUE. Valor: {execute_pipeline}")
+            pipeline_execution = pipeline.start()
+            print(f"\n###### Execution started with PipelineExecutionArn: {pipeline_execution.arn}")
+            print("Waiting for the execution to finish...")
+            # Setting the attempts and delay (in seconds) will modify the overall time the pipeline waits.
+            # If the execution is taking a longer time, update these parameters to a larger value.
+            # Eg: The total wait time is calculated as 60 * 120 = 7200 seconds (2 hours)
+            pipeline_execution.wait(max_attempts=120, delay=60) # max wait: 24 hours
+            print("\n#####Execution completed. Execution step details:")
+            print(pipeline_execution.list_steps())
+        else:
+            print(f"El valor para ejecutar el pipeline es FALSE. Valor: {execute_pipeline}")
 
-        print("Waiting for the execution to finish...")
-
-        # Setting the attempts and delay (in seconds) will modify the overall time the pipeline waits.
-        # If the execution is taking a longer time, update these parameters to a larger value.
-        # Eg: The total wait time is calculated as 60 * 120 = 7200 seconds (2 hours)
-        execution.wait(max_attempts=120, delay=60)
-
-        print("\n#####Execution completed. Execution step details:")
-
-        print(execution.list_steps())
         # Todo print the status?
     except Exception as e:  # pylint: disable=W0703
         print(f"Exception: {e}")
