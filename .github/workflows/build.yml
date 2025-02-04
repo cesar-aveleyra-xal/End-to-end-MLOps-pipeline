@@ -11,7 +11,7 @@ env:
   COMPANY_NAME: ${{ vars.COMPANY_NAME }}
   SM_MODEL_NAME: reinforcement-learning
   # SM_EXECUTE_PIPELINE: ${{ vars.SM_MAINTENANCE_OPE }}
-  SM_EXECUTE_PIPELINE: false
+  SM_EXECUTE_PIPELINE: true
 
 permissions:
   id-token: write   # This is required for requesting the JWT
@@ -113,7 +113,7 @@ jobs:
         uses: aws-actions/aws-cloudformation-github-deploy@master
         with:
           name:  ${{ vars.COMPANY_NAME }}-${{ vars.PROJECT_NAME }}-${{ vars.ENV }}-${{ env.SM_MODEL_NAME }}
-          template: cloudformation/models_templates/${{ vars.COMPANY_NAME }}-${{ vars.PROJECT_NAME }}-analytic-${{env.SM_MODEL_NAME }}.yml
+          template: cloudformation/models_templates/${{ vars.COMPANY_NAME }}-${{ vars.PROJECT_NAME }}-${{env.SM_MODEL_NAME }}.yml
           no-fail-on-empty-changeset: "1"
           capabilities: CAPABILITY_IAM, CAPABILITY_NAMED_IAM
           parameter-overrides: file://${{ github.workspace }}/cloudformation/models_params/${{ vars.ENV }}/params_model.json
