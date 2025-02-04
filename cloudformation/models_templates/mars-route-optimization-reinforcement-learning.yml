@@ -1,0 +1,150 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: This template is built and deployed by the infrastructure pipeline in
+  various stages (dev/prod) as required. It specifies the resources that
+  need to be created, like the SageMaker Endpoint.
+
+Parameters:
+  CompanyName:
+    Type: String
+    Description: Indicate the company name.
+
+  ProjectName:
+    Type: String
+    Description: Indicate the name of project to build the resources.
+
+  Environment:
+    Type: String
+    Description: Indicates the name of the environment for which the infrastructure will be provisioned [dev/qa/prod].
+
+  SageMakerProjectName:
+    Type: String
+    Description: Name of the project
+    MinLength: 1
+    MaxLength: 32
+    AllowedPattern: ^[a-zA-Z](-*[a-zA-Z0-9])*
+
+  EndpointInstanceCount:
+    Type: Number
+    Description: Number of instances to launch for the endpoint.
+    MinValue: 1
+
+  ModelSupContentTypes:
+    Type: String
+    Description: The supported MIME types for the input data.
+
+  ModelSupResponseMIMETypes:
+    Type: String
+    Description: The supported MIME types for the output data.
+
+  EndpointInstanceType:
+    Type: String
+    Description: The ML compute instance type for the endpoint.
+
+  DataCaptureUploadPath:
+    Type: String
+    Description: The s3 path to which the captured data is uploaded.
+
+  SamplingPercentage:
+    Type: Number
+    Description: The sampling percentage
+    MinValue: 0
+    MaxValue: 100
+
+  EnableDataCapture:
+    Description: Enable Data capture.
+    Default: true
+    Type: String
+
+  ContentTypeHeader:
+    Description: all content type headers that Amazon SageMaker will treat as CSV and capture accordingly
+    Type: String
+
+  EnableEndpoint:
+    Description: Enables or disables the model enpoint.
+    Type: String
+
+  LastModelVersion:
+    Description: The ARN of the last version of the model package.
+    Type: String
+
+  LastModelVersionApproved:
+    Description: The ID of the last version of the model package approved.
+    Type: String
+  
+
+Conditions:
+  CreateEndpoint: !Equals 
+    - !Ref EnableEndpoint
+    - True
+
+# Outputs:
+#   SMModelGroup:
+#     Description: Valor de hacer ref ModelGroup
+#     Value: !Ref ModelGroup
+#     Condition: CreateEndpoint
+#     Export:
+#       Name: !Sub "${Environment}-sm-model-package-dummy"
+
+Resources:
+  Model:
+    Type: AWS::SageMaker::Model
+    Properties:
+      ModelName: !Join [ '-', [ !Ref CompanyName, !Ref ProjectName, !Ref Environment, !Ref SageMakerProjectName, !Ref LastModelVersionApproved] ]
+      Containers:
+      - ModelPackageName: !Ref LastModelVersion
+      ExecutionRoleArn:
+        Fn::ImportValue:
+          !Sub "${Environment}-sm-resources-smrole"
+      EnableNetworkIsolation: false
+      Tags: 
+        - 
+          Key: "ProjectName"
+          Value: !Join [ '-', [ !Ref ProjectName]]
+        -
+          Key: "Environment"
+          Value: !Ref Environment
+        -
+          Key: CfStackId
+          Value: !Ref 'AWS::StackId'
+        -
+          Key: model
+          Value: !Ref LastModelVersion
+
+  EndpointConfig:
+    Type: AWS::SageMaker::EndpointConfig
+    Properties:
+      EndpointConfigName: !Join [ '-', [ !Ref CompanyName, !Ref ProjectName, !Ref Environment, 'ep', !Ref SageMakerProjectName, !Ref LastModelVersionApproved] ]
+      ProductionVariants:
+      - InitialInstanceCount:
+          Ref: EndpointInstanceCount
+        InitialVariantWeight: 1.0
+        InstanceType:
+          Ref: EndpointInstanceType
+        ModelName:
+          Fn::GetAtt:
+          - Model
+          - ModelName
+        VariantName: AllTraffic
+      DataCaptureConfig:
+        EnableCapture:
+          Ref: EnableDataCapture
+        InitialSamplingPercentage:
+          Ref: SamplingPercentage
+        DestinationS3Uri:
+          Ref: DataCaptureUploadPath
+        CaptureOptions:
+        - CaptureMode: Input
+        - CaptureMode: Output
+        CaptureContentTypeHeader:
+          CsvContentTypes:
+          - !Ref ContentTypeHeader
+
+  Endpoint:
+    Type: AWS::SageMaker::Endpoint
+    Condition: CreateEndpoint
+    Properties:
+      EndpointName: !Join [ '-', [ !Ref CompanyName, !Ref ProjectName, !Ref Environment, !Ref SageMakerProjectName] ]
+      EndpointConfigName:
+        Fn::GetAtt:
+        - EndpointConfig
+        - EndpointConfigName

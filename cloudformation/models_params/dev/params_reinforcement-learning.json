@@ -1,0 +1,62 @@
+[
+    {
+        "ParameterKey": "CompanyName",
+        "ParameterValue": "mars"
+    },
+    {
+        "ParameterKey": "ProjectName",
+        "ParameterValue": "route-optimization"
+    },
+    {
+        "ParameterKey": "Environment",
+        "ParameterValue": "dev"
+    },
+    {
+        "ParameterKey": "SageMakerProjectName",
+        "ParameterValue": "reinforcement-learning"
+    },
+    {
+        "ParameterKey": "EndpointInstanceCount",
+        "ParameterValue": "1"
+    },
+    {
+        "ParameterKey": "ModelSupContentTypes",
+        "ParameterValue": "text/csv"
+    },
+    {
+        "ParameterKey": "ModelSupResponseMIMETypes",
+        "ParameterValue": "text/csv"
+    },
+    {
+        "ParameterKey": "EndpointInstanceType",
+        "ParameterValue": "ml.m5.xlarge"
+    },
+    {
+        "ParameterKey": "DataCaptureUploadPath",
+        "ParameterValue": "s3://mars-route-optimization-dev-staging-infra/models_output/reinforcement-learning/"
+    },
+    {
+        "ParameterKey": "SamplingPercentage",
+        "ParameterValue": "50"
+    },
+    {
+        "ParameterKey": "EnableDataCapture",
+        "ParameterValue": "True"
+    },
+    {
+        "ParameterKey": "ContentTypeHeader",
+        "ParameterValue": "text/csv"
+    },
+    {
+        "ParameterKey": "EnableEndpoint",
+        "ParameterValue": "true"
+    },
+    {
+        "ParameterKey": "LastModelVersion",
+        "ParameterValue": "REPLACE"
+    },
+    {
+        "ParameterKey": "LastModelVersionApproved",
+        "ParameterValue": "REPLACE"
+    }
+]

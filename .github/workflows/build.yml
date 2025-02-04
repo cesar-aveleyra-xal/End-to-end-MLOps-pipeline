@@ -9,7 +9,7 @@ on:
 env:
   AWS_REGION: ${{ vars.AWS_DEFAULT_REGION }}
   COMPANY_NAME: ${{ vars.COMPANY_NAME }}
-  SAGEMAKER_PROJECT_NAME: route-optimization
+  SM_MODEL_NAME: reinforcement-learning
   # SM_EXECUTE_PIPELINE: ${{ vars.SM_MAINTENANCE_OPE }}
   SM_EXECUTE_PIPELINE: false
 
@@ -81,18 +81,39 @@ jobs:
       - name: Build SageMaker Pipeline
         run: |
           export SAGEMAKER_PROJECT_ID=$(aws sagemaker describe-project \
-            --project-name ${{ env.COMPANY_NAME }}-${{ env.SAGEMAKER_PROJECT_NAME }} \
+            --project-name ${{ vars.COMPANY_NAME }}-${{ vars.PROJECT_NAME }}-${{ vars.ENV }}-${{ env.SM_MODEL_NAME }} \
             --query ProjectId \
             --output text)
           export SAGEMAKER_PROJECT_ARN=$(aws sagemaker describe-project \
-            --project-name ${{ env.COMPANY_NAME }}-${{ env.SAGEMAKER_PROJECT_NAME }} \
+            --project-name ${{ vars.COMPANY_NAME }}-${{ vars.PROJECT_NAME }}-${{ vars.ENV }}-${{ env.SM_MODEL_NAME }} \
             --query ProjectArn \
             --output text)
-          export ARTIFACT_BUCKET=sagemaker-${{ env.SAGEMAKER_PROJECT_NAME }}-${{ env.AWS_REGION }}
-          export SAGEMAKER_PROJECT_NAME_ID="${{ env.SAGEMAKER_PROJECT_NAME }}"
+          export ARTIFACT_BUCKET=sagemaker-${{ env.SM_MODEL_NAME }}-${{ env.AWS_REGION }}
+          export SM_MODEL_NAME_ID="${{ env.SM_MODEL_NAME }}"
           export SAGEMAKER_PIPELINE_ROLE_ARN=arn:aws:iam::${{ steps.aws_creds.outputs.aws-account-id }}:role/AmazonSageMakerServiceCatalogProductsUseRole
           run-pipeline --module-name pipelines.abalone.pipeline \
             --execute-pipeline ${{ env.SM_EXECUTE_PIPELINE }} \
             --role-arn ${SAGEMAKER_PIPELINE_ROLE_ARN} \
-            --tags "[{\"Key\":\"sagemaker:project-name\", \"Value\":\"${SAGEMAKER_PROJECT_NAME}\"}, {\"Key\":\"sagemaker:project-id\", \"Value\":\"${SAGEMAKER_PROJECT_ID}\"}]" \
-            --kwargs "{\"region\":\"${AWS_REGION}\",\"sagemaker_project_arn\":\"${SAGEMAKER_PROJECT_ARN}\",\"role\":\"${SAGEMAKER_PIPELINE_ROLE_ARN}\",\"default_bucket\":\"${ARTIFACT_BUCKET}\",\"pipeline_name\":\"${SAGEMAKER_PROJECT_NAME_ID}\",\"model_package_group_name\":\"${SAGEMAKER_PROJECT_NAME_ID}\",\"base_job_prefix\":\"${SAGEMAKER_PROJECT_NAME_ID}\"}"
+            --tags "[{\"Key\":\"sagemaker:project-name\", \"Value\":\"${SM_MODEL_NAME}\"}, {\"Key\":\"sagemaker:project-id\", \"Value\":\"${SAGEMAKER_PROJECT_ID}\"}]" \
+            --kwargs "{\"region\":\"${AWS_REGION}\",\"sagemaker_project_arn\":\"${SAGEMAKER_PROJECT_ARN}\",\"role\":\"${SAGEMAKER_PIPELINE_ROLE_ARN}\",\"default_bucket\":\"${ARTIFACT_BUCKET}\",\"pipeline_name\":\"${SM_MODEL_NAME_ID}\",\"model_package_group_name\":\"${SM_MODEL_NAME_ID}\",\"base_job_prefix\":\"${SM_MODEL_NAME_ID}\"}"
+
+      - name: GET LAST MODEL PACKAGES
+        id: model-packages
+        working-directory: cloudformation/models_params/${{ vars.ENV }}
+        run: |
+          LAST_MODEL_PACKAGE=$(aws sagemaker list-model-packages --model-approval-status Approved --model-package-group-name ${{ vars.COMPANY_NAME }}-${{ vars.PROJECT_NAME }}-${{ vars.ENV }}-${{ env.SM_MODEL_NAME }} --sort-by CreationTime --query "ModelPackageSummaryList[0].[ModelPackageArn]" --output text)
+          LAST_MODEL_VERSION_APPROVED=$(echo $LAST_MODEL_PACKAGE | rev | cut -d'/' -f1 | rev)
+          echo $LAST_MODEL_PACKAGE
+          jq --arg SAGEMAKER_PROJECT_NAME "$SM_MODEL_NAME" --arg LAST_MODEL_PACKAGE "$LAST_MODEL_PACKAGE" --arg LAST_MODEL_VERSION_APPROVED "$LAST_MODEL_VERSION_APPROVED" '. |= map(if .ParameterKey == "SageMakerProjectName" then .ParameterValue = $SAGEMAKER_PROJECT_NAME elif .ParameterKey == "LastModelVersion" then .ParameterValue = $LAST_MODEL_PACKAGE elif .ParameterKey == "LastModelVersionApproved" then .ParameterValue = $LAST_MODEL_VERSION_APPROVED else . end)' params_$SM_MODEL_NAME.json > updated_params_dummy.json
+          mv updated_params_dummy.json params_model.json
+          cat params_model.json
+      - name: CREATE SAGEMAKER MODEL STACK IN CLOUDFORMATION
+        id: CF
+        # working-directory: cloudformation
+        uses: aws-actions/aws-cloudformation-github-deploy@master
+        with:
+          name:  ${{ vars.COMPANY_NAME }}-${{ vars.PROJECT_NAME }}-${{ vars.ENV }}-${{ env.SM_MODEL_NAME }}
+          template: cloudformation/models_templates/${{ vars.COMPANY_NAME }}-${{ vars.PROJECT_NAME }}-analytic-${{env.SM_MODEL_NAME }}.yml
+          no-fail-on-empty-changeset: "1"
+          capabilities: CAPABILITY_IAM, CAPABILITY_NAMED_IAM
+          parameter-overrides: file://${{ github.workspace }}/cloudformation/models_params/${{ vars.ENV }}/params_model.json
