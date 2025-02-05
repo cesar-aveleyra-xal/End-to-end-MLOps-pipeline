@@ -94,7 +94,7 @@ Resources:
       - ModelPackageName: !Ref LastModelVersion
       ExecutionRoleArn:
         Fn::ImportValue:
-          !Sub "arn:aws:iam::739275483428:role/GitHubAction-AssumeRoleWithAction"
+          !Sub "${Environment}-sm-resources-smrole"
       EnableNetworkIsolation: false
       Tags: 
         - 
