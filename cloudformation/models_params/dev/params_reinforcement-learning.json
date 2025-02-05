@@ -29,7 +29,7 @@
     },
     {
         "ParameterKey": "EndpointInstanceType",
-        "ParameterValue": "ml.c5.xlarge"
+        "ParameterValue": "ml.m5.large"
     },
     {
         "ParameterKey": "DataCaptureUploadPath",
