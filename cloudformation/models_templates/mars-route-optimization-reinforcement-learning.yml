@@ -94,7 +94,7 @@ Resources:
       - ModelPackageName: !Ref LastModelVersion
       ExecutionRoleArn:
         Fn::ImportValue:
-          !Sub "${Environment}-sm-resources-smrole"
+          ExecutionRoleArn: !GetAtt "${Environment}-sm-resources-smrole"
       EnableNetworkIsolation: false
       Tags: 
         - 
