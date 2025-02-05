@@ -93,8 +93,7 @@ Resources:
       Containers:
       - ModelPackageName: !Ref LastModelVersion
       ExecutionRoleArn:
-        # Fn::ImportValue:
-        ExecutionRoleArn: !GetAtt "${Environment}-sm-resources-smrole"
+        Fn::GetAtt: "${Environment}-sm-resources-smrole"
       EnableNetworkIsolation: false
       Tags: 
         - 
