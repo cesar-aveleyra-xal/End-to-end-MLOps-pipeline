@@ -93,7 +93,7 @@ Resources:
       Containers:
       - ModelPackageName: !Ref LastModelVersion
       ExecutionRoleArn:
-        Fn::GetAtt: "arn:aws:iam::739275483428:role/${Environment}-sm-resources-smrole"
+        !Sub "arn:aws:iam::739275483428:role/${Environment}-sm-resources-smrole"
       EnableNetworkIsolation: false
       Tags: 
         - 
